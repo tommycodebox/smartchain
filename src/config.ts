@@ -10,3 +10,7 @@ export const GENESIS_DATA: Block = {
     nonce: 0,
   },
 }
+
+const MILLISECONDS = 1
+const SECONDS = 1000 * MILLISECONDS
+export const MINE_RATE = 13 * SECONDS
