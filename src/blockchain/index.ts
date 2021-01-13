@@ -13,6 +13,13 @@ export class Blockchain {
   }
 
   add({ block }: AddBlockProps) {
-    this.chain.push(block)
+    return new Promise((resolve, reject) => {
+      Block.isValid({ lastBlock: this.chain[this.chain.length - 1], block })
+        .then(() => {
+          this.chain.push(block)
+          return resolve(undefined)
+        })
+        .catch((err) => reject(err))
+    })
   }
 }
