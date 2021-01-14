@@ -19,7 +19,7 @@ export class Blockchain {
           this.chain.push(block)
           return resolve(undefined)
         })
-        .catch((err) => reject(err))
+        .catch(reject)
     })
   }
 }

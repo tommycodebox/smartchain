@@ -1,26 +1,30 @@
 import { Block, Blockchain } from '@/blockchain'
 import { sortChars } from '@/util'
+import express, { NextFunction, Request, Response } from 'express'
 
-console.log('Start')
+const app = express()
 
 const blockchain = new Blockchain()
-// console.log(JSON.stringify(blockchain, null, 2))
 
-// console.log(sortChars(blockchain))
-// console.log(
-//   Block.mine({
-//     lastBlock: Block.genesis(),
-//     beneficiary: 'fooo',
-//   }),
-// )
+app.get('/blockchain', (req, res) => {
+  const { chain } = blockchain
+  res.json({ chain })
+})
 
-// for (let i = 0; i < 1000; i++) {
-//   const lastBlock = blockchain.chain[blockchain.chain.length - 1]
-//   const block = Block.mine({
-//     lastBlock,
-//     beneficiary: 'beneficiary',
-//   })
+app.get('/blockchain/mine', (req, res, next) => {
+  const lastBlock = blockchain.chain[blockchain.chain.length - 1]
+  const block = Block.mine({ lastBlock, beneficiary: 'beneficiary' })
 
-//   blockchain.add({ block })
-//   console.log(block)
-// }
+  blockchain
+    .add({ block })
+    .then(() => res.json({ block }))
+    .catch(next)
+})
+
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error('Inrernal server error:', err)
+  res.status(500).json({ message: err.message })
+})
+
+const PORT = 4210
+app.listen(PORT, () => console.log(`Started on port ${PORT}`))
