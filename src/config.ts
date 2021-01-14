@@ -14,3 +14,5 @@ export const GENESIS_DATA: Block = {
 const MILLISECONDS = 1
 const SECONDS = 1000 * MILLISECONDS
 export const MINE_RATE = 13 * SECONDS
+
+export const STARTING_BALANCE = 1000
