@@ -1,8 +1,11 @@
 import redis from 'redis'
 import { Block, Blockchain } from '@/blockchain'
+import { Transaction } from '@/transaction'
+import { Pool } from '@/pool'
 
 interface PubSubProps {
   blockchain: Blockchain
+  pool: Pool
 }
 interface PublishProps {
   channel: string
@@ -12,17 +15,18 @@ interface PublishProps {
 const CHANNELS = {
   TEST: 'TEST',
   BLOCK: 'BLOCK',
+  TRANSACTION: 'TRANSACTION',
 }
 
 export class PubSub {
   blockchain: Blockchain
-
+  pool: Pool
   publisher: redis.RedisClient
   subscriber: redis.RedisClient
 
-  constructor({ blockchain }: PubSubProps) {
+  constructor({ blockchain, pool }: PubSubProps) {
     this.blockchain = blockchain
-    // this.pool = pool
+    this.pool = pool
     this.publisher = redis.createClient()
     this.subscriber = redis.createClient()
 
@@ -44,16 +48,20 @@ export class PubSub {
   }
 
   handleMessage(channel: string, message: string) {
-    const block = JSON.parse(message)
+    const parsed = JSON.parse(message)
 
     console.log(`[ ${channel} ] Received new message`)
 
     switch (channel) {
       case CHANNELS.BLOCK:
         this.blockchain
-          .add({ block })
+          .add({ block: parsed })
           .then(() => console.log('☑️ New block accepted'))
           .catch((err) => console.error('❌ New block rejected:', err.message))
+        break
+      case CHANNELS.TRANSACTION:
+        console.log(`Received transaction ${parsed.id}`)
+        this.pool.add(new Transaction(parsed))
         break
       default:
         return
@@ -64,6 +72,13 @@ export class PubSub {
     this.publish({
       channel: CHANNELS.BLOCK,
       message: JSON.stringify(block),
+    })
+  }
+
+  broadcastTransaction(transaction: Transaction) {
+    this.publish({
+      channel: CHANNELS.TRANSACTION,
+      message: JSON.stringify(transaction),
     })
   }
 }

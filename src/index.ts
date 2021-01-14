@@ -11,11 +11,13 @@ app.use(express.json())
 
 const blockchain = new Blockchain()
 const pool = new Pool()
-const pubsub = new PubSub({ blockchain })
+const pubsub = new PubSub({ blockchain, pool })
 const account = new Account()
 const transaction = Transaction.create({ account })
 
-pool.add(transaction)
+setTimeout(() => {
+  pubsub.broadcastTransaction(transaction)
+}, 420)
 
 app.get('/blockchain', (req, res) => {
   const { chain } = blockchain
@@ -35,6 +37,10 @@ app.get('/blockchain/mine', (req, res, next) => {
     .catch(next)
 })
 
+app.get('/pool', (req, res) => {
+  res.json({ transactions: pool.getSeries() })
+})
+
 app.post('/account/transact', (req, res, next) => {
   const { to, value } = req.body
 
@@ -43,8 +49,8 @@ app.post('/account/transact', (req, res, next) => {
     to,
     value,
   })
-  pool.add(transaction)
 
+  pubsub.broadcastTransaction(transaction)
   res.json({ transaction })
 })
 
