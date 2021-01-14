@@ -10,7 +10,9 @@
     "test": "jest --watchAll",
     "dev": "webpack --watch",
     "dev:peer": "node . --peer",
-    "start": "webpack"
+    "start": "webpack",
+    "preapi-test": "tsc",
+    "api-test": "node build/api-test.js"
   },
   "dependencies": {
     "axios": "^0.21.1",

@@ -1,6 +1,6 @@
 import { Account } from '@/account'
 import { ec as EC } from 'elliptic'
-import uuid from 'uuid'
+import * as uuid from 'uuid'
 
 const TYPE_MAP = {
   CREATE_ACCOUNT: 'CREATE_ACCOUNT',
