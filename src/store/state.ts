@@ -1,4 +1,5 @@
 import { Tree } from './tree'
+import { Account } from '@/account'
 
 interface PutAccountProps {
   address: string
@@ -16,7 +17,7 @@ export class State {
     this.tree.put({ key: address, value: accountData })
   }
 
-  getAccount(address: string) {
+  getAccount(address: string): Account {
     return this.tree.get(address)
   }
 

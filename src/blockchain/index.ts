@@ -1,7 +1,9 @@
 export * from './block'
 
 import { Pool } from '@/pool'
+import { State } from '@/store'
 import { Block } from './block'
+import { BlockchainProps } from './types'
 
 interface AddBlockProps {
   block: Block
@@ -14,8 +16,11 @@ interface ReplaceChainProps {
 
 export class Blockchain {
   chain: Block[]
-  constructor() {
+  state: State
+
+  constructor({ state }: BlockchainProps) {
     this.chain = [Block.genesis()]
+    this.state = state
   }
 
   add({ block, pool }: AddBlockProps) {
@@ -23,6 +28,9 @@ export class Blockchain {
       Block.isValid({ lastBlock: this.chain[this.chain.length - 1], block })
         .then(() => {
           this.chain.push(block)
+
+          Block.runBlock({ block, state: this.state })
+
           pool.clearBlockTransactions({ series: block.series })
           return resolve(undefined)
         })
@@ -38,6 +46,8 @@ export class Blockchain {
 
         try {
           await Block.isValid({ lastBlock, block })
+
+          Block.runBlock({ block, state: this.state })
         } catch (err) {
           return reject(err)
         }

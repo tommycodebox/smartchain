@@ -7,6 +7,7 @@ import {
   CalculateBlockTargetHashProps,
   IsValidProps,
   MineProps,
+  RunBlockProps,
 } from './types'
 
 const HASH_LENGTH = 64
@@ -117,5 +118,11 @@ export class Block {
 
       return resolve(block)
     })
+  }
+
+  static runBlock({ block, state }: RunBlockProps) {
+    for (let transaction of block.series) {
+      Transaction.runTransaction({ state, transaction })
+    }
   }
 }

@@ -1,5 +1,10 @@
+import { State } from '@/store'
 import { Transaction } from '@/transaction'
 import { Block } from './block'
+
+export interface BlockchainProps {
+  state: State
+}
 
 export interface BlockHeaders {
   parentHash: string
@@ -31,4 +36,9 @@ export interface MineProps {
 export interface IsValidProps {
   lastBlock?: Block
   block: Block
+}
+
+export interface RunBlockProps {
+  block: Block
+  state: State
 }

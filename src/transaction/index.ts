@@ -1,20 +1,15 @@
 import { Account } from '@/account'
 import { ec as EC } from 'elliptic'
 import * as uuid from 'uuid'
+import {
+  CreateTransactionProps,
+  RunTransactionProps,
+  ValidateProps,
+} from './types'
 
 const TYPE_MAP = {
   CREATE_ACCOUNT: 'CREATE_ACCOUNT',
   TRANSACT: 'TRANSACT',
-}
-
-interface CreateTransactionProps {
-  account: Account
-  to?: string
-  value?: number
-}
-
-interface ValidateProps {
-  transaction: Transaction
 }
 
 export class Transaction {
@@ -99,5 +94,40 @@ export class Transaction {
 
       return resolve(true)
     })
+  }
+
+  static runStandart({ state, transaction }: RunTransactionProps) {
+    const fromAccount = state.getAccount(transaction.from)
+    const toAccount = state.getAccount(transaction.to)
+
+    const { value } = transaction
+
+    fromAccount.balance -= value
+    toAccount.balance += value
+
+    state.putAccount({ address: transaction.from, accountData: fromAccount })
+    state.putAccount({ address: transaction.to, accountData: toAccount })
+  }
+
+  static runCreateAccount({ state, transaction }: RunTransactionProps) {
+    const { accountData } = transaction.data
+    const { address } = accountData
+
+    state.putAccount({ address, accountData })
+  }
+
+  static runTransaction({ state, transaction }: RunTransactionProps) {
+    switch (transaction.data.type) {
+      case TYPE_MAP.TRANSACT:
+        Transaction.runStandart({ state, transaction })
+        console.log('Updated account data to reflect standart transaction')
+        break
+      case TYPE_MAP.CREATE_ACCOUNT:
+        Transaction.runCreateAccount({ state, transaction })
+        console.log('Stored the account data')
+        break
+      default:
+        break
+    }
   }
 }

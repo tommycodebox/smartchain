@@ -11,7 +11,7 @@ const app = express()
 app.use(express.json())
 
 const state = new State()
-const blockchain = new Blockchain()
+const blockchain = new Blockchain({ state })
 const pool = new Pool()
 const pubsub = new PubSub({ blockchain, pool })
 const account = new Account()
@@ -61,6 +61,17 @@ app.post('/account/transact', (req, res, next) => {
   res.json({ transaction })
 })
 
+app.get('/account/balance', (req, res, next) => {
+  const { address } = req.query
+
+  const balance = Account.balance({
+    address: (address as string) || account.address,
+    state,
+  })
+
+  res.json({ balance })
+})
+
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error('Inrernal server error:', err)
   res.status(500).json({ message: err.message })
@@ -87,4 +98,7 @@ if (isPeer) {
     .catch(console.error)
 }
 
-app.listen(PORT, () => console.log(`Started on port ${PORT}`))
+app.listen(PORT, () => {
+  console.clear()
+  console.log(`Started on port ${PORT}`)
+})

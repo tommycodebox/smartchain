@@ -1,6 +1,7 @@
 import { STARTING_BALANCE } from '@/config'
 import { ec, keccakHash } from '@/util'
 import { ec as EC } from 'elliptic'
+import { BalanceProps } from './types'
 
 interface VerifySignatureProps {
   publicKey: string
@@ -34,5 +35,9 @@ export class Account {
       address: this.address,
       balance: this.balance,
     }
+  }
+
+  static balance({ address, state }: BalanceProps) {
+    return state.getAccount(address).balance
   }
 }
