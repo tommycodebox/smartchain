@@ -1,5 +1,7 @@
 import { keccakHash } from '@/util'
 
+import lodash from 'lodash'
+
 interface PutProps {
   key: string
   value: any
@@ -36,7 +38,7 @@ export class Tree {
       }
     }
 
-    return node.value
+    return lodash.cloneDeep(node.value)
   }
 
   put({ key, value }: PutProps) {

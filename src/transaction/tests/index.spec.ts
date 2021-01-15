@@ -36,7 +36,7 @@ describe('Transaction', () => {
           transaction: standartTransaction,
         }),
       ).rejects.toMatchObject(
-        new Error('Transaction undefined signature is invalid'),
+        new Error(`Transaction ${standartTransaction.id} signature is invalid`),
       )
     })
   })
