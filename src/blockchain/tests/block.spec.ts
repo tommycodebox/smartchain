@@ -29,6 +29,7 @@ describe('Block', () => {
         lastBlock,
         beneficiary: 'beneficiary',
         series: [],
+        stateRoot: '---',
       })
     })
 
@@ -91,7 +92,12 @@ describe('Block', () => {
 
     beforeEach(() => {
       lastBlock = Block.genesis()
-      block = Block.mine({ lastBlock, beneficiary: 'beneficiary', series: [] })
+      block = Block.mine({
+        lastBlock,
+        beneficiary: 'beneficiary',
+        series: [],
+        stateRoot: '---',
+      })
     })
 
     it('should resolve when the block is genesis block', () => {

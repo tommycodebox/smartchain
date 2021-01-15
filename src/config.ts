@@ -8,7 +8,8 @@ export const GENESIS_DATA: Block = {
     number: 0,
     difficulty: 1,
     nonce: 0,
-    transactionsRoot: '---generic-transactions-root---',
+    transactionsRoot: '---genesis-transactions-root---',
+    stateRoot: '---genesis-state-root---',
   },
   series: [],
 }

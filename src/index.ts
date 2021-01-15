@@ -2,13 +2,15 @@ import { Block, Blockchain } from '@/blockchain'
 import { PubSub, sortChars } from '@/util'
 import express, { NextFunction, Request, Response } from 'express'
 import axios from 'axios'
-import { Pool } from './pool'
-import { Account } from './account'
-import { Transaction } from './transaction'
+import { Pool } from '@/pool'
+import { Account } from '@/account'
+import { Transaction } from '@/transaction'
+import { State } from '@/store'
 
 const app = express()
 app.use(express.json())
 
+const state = new State()
 const blockchain = new Blockchain()
 const pool = new Pool()
 const pubsub = new PubSub({ blockchain, pool })
@@ -30,6 +32,7 @@ app.get('/blockchain/mine', (req, res, next) => {
     lastBlock,
     beneficiary: account.address,
     series: pool.getSeries(),
+    stateRoot: state.getStateRoot(),
   })
 
   blockchain

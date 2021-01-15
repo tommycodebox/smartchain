@@ -1,40 +1,17 @@
 import { GENESIS_DATA, MINE_RATE } from '@/config'
 import { Transaction } from '@/transaction'
 import { keccakHash } from '@/util'
+import {
+  AdjustDifficultyProps,
+  BlockHeaders,
+  CalculateBlockTargetHashProps,
+  IsValidProps,
+  MineProps,
+} from './types'
 
 const HASH_LENGTH = 64
 const MAX_HASH_VALUE = parseInt('f'.repeat(HASH_LENGTH), 16)
 const MAX_NONCE_VALUE = 2 ** 64
-
-interface BlockHeaders {
-  parentHash: string
-  beneficiary: string
-  timestamp: number
-  number: number
-  difficulty: number
-  nonce: number
-  transactionsRoot: string
-}
-
-interface CalculateBlockTargetHashProps {
-  lastBlock: Block
-}
-
-interface AdjustDifficultyProps {
-  lastBlock: Block
-  timestamp: number
-}
-
-interface MineProps {
-  lastBlock: Block
-  beneficiary: string
-  series: Transaction[]
-}
-
-interface IsValidProps {
-  lastBlock?: Block
-  block: Block
-}
 
 export class Block {
   blockHeaders: BlockHeaders
@@ -68,7 +45,7 @@ export class Block {
     return difficulty + 1
   }
 
-  static mine({ lastBlock, beneficiary, series }: MineProps) {
+  static mine({ lastBlock, beneficiary, series, stateRoot }: MineProps) {
     const target = Block.calculateBlockTargetHash({ lastBlock })
 
     let timestamp,
@@ -87,6 +64,7 @@ export class Block {
         timestamp,
         // ? Will be refactored when Tries are implemented
         transactionsRoot: keccakHash(series),
+        stateRoot,
       } as BlockHeaders
       header = keccakHash(truncatedBlockHeaders)
       nonce = Math.floor(Math.random() * MAX_NONCE_VALUE)
