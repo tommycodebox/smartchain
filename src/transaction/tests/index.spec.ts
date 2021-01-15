@@ -1,17 +1,26 @@
 import { Account } from '@/account'
+import { State } from '@/store'
 import { Transaction } from '..'
 
 describe('Transaction', () => {
   let standartTransaction: Transaction,
     createAccountTransaction: Transaction,
-    account: Account
+    account: Account,
+    state: State,
+    toAccount: Account
 
   beforeEach(() => {
     account = new Account()
+    toAccount = new Account()
+    state = new State()
+
+    state.putAccount({ address: account.address, accountData: account })
+    state.putAccount({ address: toAccount.address, accountData: toAccount })
+
     standartTransaction = Transaction.create({
       account,
-      to: 'foo',
-      value: 4210,
+      to: toAccount.address,
+      value: 420,
     })
     createAccountTransaction = Transaction.create({
       account,
@@ -23,6 +32,7 @@ describe('Transaction', () => {
       expect(
         Transaction.validateStandart({
           transaction: standartTransaction,
+          state,
         }),
       ).resolves.toBe(true)
     })
@@ -34,6 +44,7 @@ describe('Transaction', () => {
       expect(
         Transaction.validateStandart({
           transaction: standartTransaction,
+          state,
         }),
       ).rejects.toMatchObject(
         new Error(`Transaction ${standartTransaction.id} signature is invalid`),

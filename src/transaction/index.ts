@@ -4,12 +4,21 @@ import * as uuid from 'uuid'
 import {
   CreateTransactionProps,
   RunTransactionProps,
-  ValidateProps,
+  ValidateCreateAccountProps,
+  ValidateSeriesProps,
+  ValidateStandartProps,
 } from './types'
 
-const TYPE_MAP = {
+type TRANSACTION_TYPE = 'CREATE_ACCOUNT' | 'TRANSACT'
+
+const TYPE_MAP: { [key: string]: TRANSACTION_TYPE } = {
   CREATE_ACCOUNT: 'CREATE_ACCOUNT',
   TRANSACT: 'TRANSACT',
+}
+
+interface TransactionData {
+  type: TRANSACTION_TYPE
+  accountData?: any
 }
 
 export class Transaction {
@@ -17,7 +26,7 @@ export class Transaction {
   from?: string
   to?: string
   value?: number
-  data?: any
+  data?: TransactionData
   signature?: EC.Signature | string
 
   constructor({ id, from, to, value, data, signature }: Transaction) {
@@ -25,7 +34,7 @@ export class Transaction {
     this.from = from || '-'
     this.to = to || '-'
     this.value = value || 0
-    this.data = data || '-'
+    this.data = data || ('-' as any)
     this.signature = signature || '-'
   }
 
@@ -53,9 +62,9 @@ export class Transaction {
     })
   }
 
-  static validateStandart({ transaction }: ValidateProps) {
+  static validateStandart({ transaction, state }: ValidateStandartProps) {
     return new Promise((resolve, reject) => {
-      const { id, from, signature } = transaction
+      const { id, from, to, signature, value } = transaction
       const data = { ...transaction }
       delete data.signature
 
@@ -69,11 +78,24 @@ export class Transaction {
         return reject(new Error(`Transaction ${id} signature is invalid`))
       }
 
+      const fromBalance = state.getAccount(from).balance
+
+      if (value > fromBalance)
+        return reject(
+          new Error(
+            `Transaction value: ${value} exceeds balance: ${fromBalance}`,
+          ),
+        )
+
+      const toAccount = state.getAccount(to)
+      if (!toAccount)
+        return reject(new Error(`The to field: ${to} does not exist`))
+
       return resolve(true)
     })
   }
 
-  static validateCreateAccount({ transaction }: ValidateProps) {
+  static validateCreateAccount({ transaction }: ValidateCreateAccountProps) {
     return new Promise((resolve, reject) => {
       const expectedAccFields = Object.keys(new Account().toJSON())
       const fields = Object.keys(transaction.data?.accountData ?? {})
@@ -91,6 +113,29 @@ export class Transaction {
             new Error(`The field: ${field}, is unexpected for account data`),
           )
       })
+
+      return resolve(true)
+    })
+  }
+
+  static validateSeries({ series, state }: ValidateSeriesProps) {
+    return new Promise(async (resolve, reject) => {
+      for (let transaction of series) {
+        try {
+          switch (transaction.data.type) {
+            case TYPE_MAP.CREATE_ACCOUNT:
+              await Transaction.validateCreateAccount({ transaction })
+              break
+            case TYPE_MAP.TRANSACT:
+              await Transaction.validateStandart({ transaction, state })
+              break
+            default:
+              break
+          }
+        } catch (err) {
+          return reject(err)
+        }
+      }
 
       return resolve(true)
     })

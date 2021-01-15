@@ -73,7 +73,7 @@ app.get('/account/balance', (req, res, next) => {
 })
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error('Inrernal server error:', err)
+  console.error('Internal server error:', err)
   res.status(500).json({ message: err.message })
 })
 
