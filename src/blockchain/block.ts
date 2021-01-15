@@ -83,7 +83,7 @@ export class Block {
     return new Block(GENESIS_DATA)
   }
 
-  static isValid({ lastBlock, block }: IsValidProps) {
+  static isValid({ lastBlock, block, state }: IsValidProps) {
     return new Promise((resolve, reject) => {
       if (keccakHash(block) === keccakHash(Block.genesis()))
         return resolve(block)
@@ -115,6 +115,13 @@ export class Block {
         return reject(
           new Error('The block does not meet the proof of work requirement'),
         )
+
+      Transaction.validateSeries({
+        state,
+        series: block.series,
+      })
+        .then(resolve)
+        .catch(reject)
 
       return resolve(block)
     })

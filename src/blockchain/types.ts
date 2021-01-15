@@ -36,6 +36,7 @@ export interface MineProps {
 export interface IsValidProps {
   lastBlock?: Block
   block: Block
+  state: State
 }
 
 export interface RunBlockProps {

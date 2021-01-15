@@ -20,7 +20,7 @@ describe('Transaction', () => {
     standartTransaction = Transaction.create({
       account,
       to: toAccount.address,
-      value: 420,
+      value: 421,
     })
     createAccountTransaction = Transaction.create({
       account,
@@ -49,6 +49,38 @@ describe('Transaction', () => {
       ).rejects.toMatchObject(
         new Error(`Transaction ${standartTransaction.id} signature is invalid`),
       )
+    })
+
+    it('should invalidate when value exceeds balance', () => {
+      standartTransaction = Transaction.create({
+        account,
+        to: toAccount.address,
+        value: 4210,
+      })
+
+      expect(
+        Transaction.validateStandart({
+          transaction: standartTransaction,
+          state,
+        }),
+      ).rejects.toMatchObject(
+        new Error(`Transaction value: 4210 exceeds balance: 1000`),
+      )
+    })
+
+    it('should invalidate when `to` address does not exist', () => {
+      standartTransaction = Transaction.create({
+        account,
+        to: 'foo',
+        value: 421,
+      })
+
+      expect(
+        Transaction.validateStandart({
+          transaction: standartTransaction,
+          state,
+        }),
+      ).rejects.toMatchObject(new Error(`The to field: foo does not exist`))
     })
   })
 

@@ -25,7 +25,11 @@ export class Blockchain {
 
   add({ block, pool }: AddBlockProps) {
     return new Promise((resolve, reject) => {
-      Block.isValid({ lastBlock: this.chain[this.chain.length - 1], block })
+      Block.isValid({
+        lastBlock: this.chain[this.chain.length - 1],
+        block,
+        state: this.state,
+      })
         .then(() => {
           this.chain.push(block)
 
@@ -45,7 +49,7 @@ export class Blockchain {
         const lastBlock = i > 0 ? chain[i - 1] : null
 
         try {
-          await Block.isValid({ lastBlock, block })
+          await Block.isValid({ lastBlock, block, state: this.state })
 
           Block.runBlock({ block, state: this.state })
         } catch (err) {
