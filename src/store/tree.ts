@@ -1,6 +1,7 @@
 import { keccakHash } from '@/util'
 
 import lodash from 'lodash'
+import { BuildProps } from './types'
 
 interface PutProps {
   key: string
@@ -55,5 +56,19 @@ export class Tree {
     node.value = value
 
     this.generateRootHash()
+  }
+
+  static build({ items }: BuildProps) {
+    const tree = new this()
+
+    for (let item of items.sort((a, b) => {
+      if (keccakHash(a) > keccakHash(b)) return 1
+      else if (keccakHash(a) < keccakHash(b)) return -1
+      return 0
+    })) {
+      tree.put({ key: keccakHash(item), value: item })
+    }
+
+    return tree
   }
 }

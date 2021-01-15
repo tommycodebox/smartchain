@@ -1,4 +1,5 @@
 import { GENESIS_DATA, MINE_RATE } from '@/config'
+import { Tree } from '@/store'
 import { Transaction } from '@/transaction'
 import { keccakHash } from '@/util'
 import {
@@ -48,6 +49,9 @@ export class Block {
 
   static mine({ lastBlock, beneficiary, series, stateRoot }: MineProps) {
     const target = Block.calculateBlockTargetHash({ lastBlock })
+    const tree = Tree.build({
+      items: series,
+    })
 
     let timestamp,
       truncatedBlockHeaders: BlockHeaders,
@@ -63,8 +67,7 @@ export class Block {
         difficulty: Block.adjustDifficulty({ lastBlock, timestamp }),
         number: lastBlock.blockHeaders.number + 1,
         timestamp,
-        // ? Will be refactored when Tries are implemented
-        transactionsRoot: keccakHash(series),
+        transactionsRoot: tree.rootHash,
         stateRoot,
       } as BlockHeaders
       header = keccakHash(truncatedBlockHeaders)
@@ -102,6 +105,16 @@ export class Block {
         ) > 1
       )
         return reject(new Error('The difficulty must only adjust by 1'))
+
+      const rebuiltTree = Tree.build({ items: block.series })
+
+      if (rebuiltTree.rootHash !== block.blockHeaders.transactionsRoot)
+        return reject(
+          new Error(
+            `The rebuilt transactions root does not match the block's ` +
+              `transactions root: ${block.blockHeaders.transactionsRoot}`,
+          ),
+        )
 
       const target = Block.calculateBlockTargetHash({ lastBlock })
       const { blockHeaders } = block

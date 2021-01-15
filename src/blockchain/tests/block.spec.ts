@@ -144,5 +144,15 @@ describe('Block', () => {
 
       Block.calculateBlockTargetHash = originalCalculateBlockTargetHash
     })
+
+    it('should reject invalid transaction series', () => {
+      block.series = [{}]
+
+      expect(Block.isValid({ lastBlock, block, state })).rejects.toMatchObject(
+        new Error(
+          `The rebuilt transactions root does not match the block's transactions root: ${block.blockHeaders.transactionsRoot}`,
+        ),
+      )
+    })
   })
 })

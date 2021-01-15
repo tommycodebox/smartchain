@@ -1,3 +1,4 @@
+import { keccakHash } from '@/util'
 import { Tree } from '../tree'
 
 describe('Tree', () => {
@@ -41,6 +42,18 @@ describe('Tree', () => {
       value.one = 2
 
       expect(result).toEqual({ one: 1 })
+    })
+  })
+
+  describe('build()', () => {
+    it('should build a tree where the items are accessible with their hashes', () => {
+      const item1 = { foo: 'bar' }
+      const item2 = { foo2: 'bar2' }
+
+      tree = Tree.build({ items: [item1, item2] })
+
+      expect(tree.get(keccakHash(item1))).toEqual(item1)
+      expect(tree.get(keccakHash(item2))).toEqual(item2)
     })
   })
 })
