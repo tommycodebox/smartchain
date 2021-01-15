@@ -26,10 +26,14 @@ app.get('/blockchain', (req, res) => {
 
 app.get('/blockchain/mine', (req, res, next) => {
   const lastBlock = blockchain.chain[blockchain.chain.length - 1]
-  const block = Block.mine({ lastBlock, beneficiary: account.address })
+  const block = Block.mine({
+    lastBlock,
+    beneficiary: account.address,
+    series: pool.getSeries(),
+  })
 
   blockchain
-    .add({ block })
+    .add({ block, pool })
     .then(() => {
       pubsub.broadcastBlock(block)
       res.json({ block })

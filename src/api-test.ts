@@ -12,9 +12,20 @@ const postTransact = ({ to, value }: any) => {
   })
 }
 
-postTransact({ to: 'foo', value: 20 }).then((trx) =>
-  console.log('Post transact response (standart)', trx),
-)
+const getMine = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      axios
+        .get(`${BASE_URL}/blockchain/mine`)
+        .then((res) => resolve(res.data))
+        .catch(reject)
+    }, 1000)
+  })
+}
+
+// postTransact({ to: 'foo', value: 20 }).then((trx) =>
+//   console.log('Post transact response  (standart)', trx),
+// )
 
 postTransact({})
   .then((trx: { transaction: Transaction }) => {
@@ -26,4 +37,9 @@ postTransact({})
   })
   .then((trx2) => {
     console.log('Post transact to created account', trx2)
+
+    return getMine()
+  })
+  .then((minedBlock) => {
+    console.log('getMine response', minedBlock)
   })

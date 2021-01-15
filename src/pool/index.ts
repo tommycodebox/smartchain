@@ -1,5 +1,9 @@
 import { Transaction } from '@/transaction'
 
+interface ClearProps {
+  series: Transaction[]
+}
+
 export class Pool {
   transactions: {
     [id: string]: Transaction
@@ -15,5 +19,11 @@ export class Pool {
 
   getSeries() {
     return Object.values(this.transactions)
+  }
+
+  clearBlockTransactions({ series }: ClearProps) {
+    for (let transaction of series) {
+      delete this.transactions[transaction.id]
+    }
   }
 }

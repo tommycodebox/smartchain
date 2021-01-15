@@ -55,8 +55,8 @@ export class PubSub {
     switch (channel) {
       case CHANNELS.BLOCK:
         this.blockchain
-          .add({ block: parsed })
-          .then(() => console.log('☑️ New block accepted'))
+          .add({ block: parsed, pool: this.pool })
+          .then(() => console.log('☑️ New block accepted', parsed))
           .catch((err) => console.error('❌ New block rejected:', err.message))
         break
       case CHANNELS.TRANSACTION:

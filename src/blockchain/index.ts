@@ -1,9 +1,11 @@
 export * from './block'
 
+import { Pool } from '@/pool'
 import { Block } from './block'
 
 interface AddBlockProps {
   block: Block
+  pool: Pool
 }
 
 interface ReplaceChainProps {
@@ -16,11 +18,12 @@ export class Blockchain {
     this.chain = [Block.genesis()]
   }
 
-  add({ block }: AddBlockProps) {
+  add({ block, pool }: AddBlockProps) {
     return new Promise((resolve, reject) => {
       Block.isValid({ lastBlock: this.chain[this.chain.length - 1], block })
         .then(() => {
           this.chain.push(block)
+          pool.clearBlockTransactions({ series: block.series })
           return resolve(undefined)
         })
         .catch(reject)

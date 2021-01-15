@@ -6,7 +6,7 @@ describe('Block', () => {
     it('should calculate the maximum hash when the last block difficulty is 1', () => {
       expect(
         Block.calculateBlockTargetHash({
-          lastBlock: { blockHeaders: { difficulty: 1 } as any },
+          lastBlock: { blockHeaders: { difficulty: 1 } as any, series: [] },
         }),
       ).toEqual('f'.repeat(64))
     })
@@ -14,7 +14,7 @@ describe('Block', () => {
     it('should calculate the low hash when the last block difficulty is high', () => {
       expect(
         Block.calculateBlockTargetHash({
-          lastBlock: { blockHeaders: { difficulty: 500 } as any },
+          lastBlock: { blockHeaders: { difficulty: 500 } as any, series: [] },
         }) < '1',
       ).toBe(true)
     })
@@ -25,7 +25,11 @@ describe('Block', () => {
 
     beforeEach(() => {
       lastBlock = Block.genesis()
-      minedBlock = Block.mine({ lastBlock, beneficiary: 'beneficiary' })
+      minedBlock = Block.mine({
+        lastBlock,
+        beneficiary: 'beneficiary',
+        series: [],
+      })
     })
 
     it('should mine a block', () => {
@@ -51,7 +55,7 @@ describe('Block', () => {
     it('should keep the difficulty above 0', () => {
       expect(
         Block.adjustDifficulty({
-          lastBlock: { blockHeaders: { difficulty: 0 } as any },
+          lastBlock: { blockHeaders: { difficulty: 0 } as any, series: [] },
           timestamp: Date.now(),
         }),
       ).toEqual(1)
@@ -62,6 +66,7 @@ describe('Block', () => {
         Block.adjustDifficulty({
           lastBlock: {
             blockHeaders: { difficulty: 5, timestamp: 1000 } as any,
+            series: [],
           },
           timestamp: 3000,
         }),
@@ -73,6 +78,7 @@ describe('Block', () => {
         Block.adjustDifficulty({
           lastBlock: {
             blockHeaders: { difficulty: 5, timestamp: 1000 } as any,
+            series: [],
           },
           timestamp: 20000,
         }),
@@ -85,7 +91,7 @@ describe('Block', () => {
 
     beforeEach(() => {
       lastBlock = Block.genesis()
-      block = Block.mine({ lastBlock, beneficiary: 'beneficiary' })
+      block = Block.mine({ lastBlock, beneficiary: 'beneficiary', series: [] })
     })
 
     it('should resolve when the block is genesis block', () => {

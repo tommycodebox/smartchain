@@ -1,4 +1,5 @@
 import { GENESIS_DATA, MINE_RATE } from '@/config'
+import { Transaction } from '@/transaction'
 import { keccakHash } from '@/util'
 
 const HASH_LENGTH = 64
@@ -12,6 +13,7 @@ interface BlockHeaders {
   number: number
   difficulty: number
   nonce: number
+  transactionsRoot: string
 }
 
 interface CalculateBlockTargetHashProps {
@@ -26,6 +28,7 @@ interface AdjustDifficultyProps {
 interface MineProps {
   lastBlock: Block
   beneficiary: string
+  series: Transaction[]
 }
 
 interface IsValidProps {
@@ -33,15 +36,13 @@ interface IsValidProps {
   block: Block
 }
 
-interface BlockProps {
-  blockHeaders: BlockHeaders
-}
-
 export class Block {
   blockHeaders: BlockHeaders
+  series: Transaction[]
 
-  constructor({ blockHeaders }: BlockProps) {
+  constructor({ blockHeaders, series }: Block) {
     this.blockHeaders = blockHeaders
+    this.series = series
   }
 
   static calculateBlockTargetHash({
@@ -67,7 +68,7 @@ export class Block {
     return difficulty + 1
   }
 
-  static mine({ lastBlock, beneficiary }: MineProps) {
+  static mine({ lastBlock, beneficiary, series }: MineProps) {
     const target = Block.calculateBlockTargetHash({ lastBlock })
 
     let timestamp,
@@ -84,6 +85,8 @@ export class Block {
         difficulty: Block.adjustDifficulty({ lastBlock, timestamp }),
         number: lastBlock.blockHeaders.number + 1,
         timestamp,
+        // ? Will be refactored when Tries are implemented
+        transactionsRoot: keccakHash(series),
       } as BlockHeaders
       header = keccakHash(truncatedBlockHeaders)
       nonce = Math.floor(Math.random() * MAX_NONCE_VALUE)
@@ -93,6 +96,7 @@ export class Block {
 
     return new this({
       blockHeaders: { ...truncatedBlockHeaders, nonce },
+      series,
     })
   }
 
