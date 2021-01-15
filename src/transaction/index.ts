@@ -1,19 +1,22 @@
 import { Account } from '@/account'
+import { MINING_REWARD } from '@/config'
 import { ec as EC } from 'elliptic'
 import * as uuid from 'uuid'
 import {
   CreateTransactionProps,
   RunTransactionProps,
   ValidateCreateAccountProps,
+  ValidateMiningRewardProps,
   ValidateSeriesProps,
   ValidateStandartProps,
 } from './types'
 
-type TRANSACTION_TYPE = 'CREATE_ACCOUNT' | 'TRANSACT'
+type TRANSACTION_TYPE = 'CREATE_ACCOUNT' | 'TRANSACT' | 'MINING_REWARD'
 
 const TYPE_MAP: { [key: string]: TRANSACTION_TYPE } = {
   CREATE_ACCOUNT: 'CREATE_ACCOUNT',
   TRANSACT: 'TRANSACT',
+  MINING_REWARD: 'MINING_REWARD',
 }
 
 interface TransactionData {
@@ -38,7 +41,14 @@ export class Transaction {
     this.signature = signature || '-'
   }
 
-  static create({ account, to, value }: CreateTransactionProps) {
+  static create({ account, to, value, beneficiary }: CreateTransactionProps) {
+    if (beneficiary) {
+      return new Transaction({
+        to: beneficiary,
+        value: MINING_REWARD,
+        data: { type: TYPE_MAP.MINING_REWARD },
+      })
+    }
     if (to) {
       const data = {
         id: uuid?.v4(),
@@ -118,6 +128,23 @@ export class Transaction {
     })
   }
 
+  static validateMiningReward({ transaction }: ValidateMiningRewardProps) {
+    return new Promise((resolve, reject) => {
+      const { value } = transaction
+
+      if (value !== MINING_REWARD) {
+        return reject(
+          new Error(
+            `The provided mining reward: ${value} does not equal` +
+              `the official value: ${MINING_REWARD}`,
+          ),
+        )
+      }
+
+      return resolve(true)
+    })
+  }
+
   static validateSeries({ series, state }: ValidateSeriesProps) {
     return new Promise(async (resolve, reject) => {
       for (let transaction of series) {
@@ -128,6 +155,9 @@ export class Transaction {
               break
             case TYPE_MAP.TRANSACT:
               await Transaction.validateStandart({ transaction, state })
+              break
+            case TYPE_MAP.MINING_REWARD:
+              await Transaction.validateMiningReward({ transaction })
               break
             default:
               break
@@ -161,15 +191,32 @@ export class Transaction {
     state.putAccount({ address, accountData })
   }
 
+  static runMiningReward({ state, transaction }: RunTransactionProps) {
+    const { to, value } = transaction
+    const accountData = state.getAccount(to)
+
+    accountData.balance += value
+
+    state.putAccount({ address: to, accountData })
+  }
+
   static runTransaction({ state, transaction }: RunTransactionProps) {
     switch (transaction.data.type) {
       case TYPE_MAP.TRANSACT:
         Transaction.runStandart({ state, transaction })
-        console.log('Updated account data to reflect standart transaction')
+        console.log(
+          '[ TRANSACT ] Updated account data to reflect standart transaction',
+        )
         break
       case TYPE_MAP.CREATE_ACCOUNT:
         Transaction.runCreateAccount({ state, transaction })
-        console.log('Stored the account data')
+        console.log('[ CREATE_ACCOUNT ] Stored the account data')
+        break
+      case TYPE_MAP.MINING_REWARD:
+        Transaction.runMiningReward({ state, transaction })
+        console.log(
+          '[ MINING_REWARD ] Updated account data to reflect the mining reward',
+        )
         break
       default:
         break

@@ -1,4 +1,5 @@
 import { Account } from '@/account'
+import { MINING_REWARD } from '@/config'
 import { State } from '@/store'
 import { Transaction } from '..'
 
@@ -7,7 +8,8 @@ describe('Transaction', () => {
     createAccountTransaction: Transaction,
     account: Account,
     state: State,
-    toAccount: Account
+    toAccount: Account,
+    miningRewardTransaction: Transaction
 
   beforeEach(() => {
     account = new Account()
@@ -24,6 +26,9 @@ describe('Transaction', () => {
     })
     createAccountTransaction = Transaction.create({
       account,
+    })
+    miningRewardTransaction = Transaction.create({
+      beneficiary: account.address,
     })
   })
 
@@ -101,6 +106,29 @@ describe('Transaction', () => {
       ).rejects.toMatchObject(
         new Error(
           'The transaction account data has an incorect number of fields',
+        ),
+      )
+    })
+  })
+
+  describe('validateMiningReward()', () => {
+    it('should validate correct mining reward transaction', () => {
+      expect(
+        Transaction.validateMiningReward({
+          transaction: miningRewardTransaction,
+        }),
+      ).resolves.toBe(true)
+    })
+
+    it('should reject incorrect mining reward transaction', () => {
+      miningRewardTransaction.value = 8888
+      expect(
+        Transaction.validateMiningReward({
+          transaction: miningRewardTransaction,
+        }),
+      ).rejects.toMatchObject(
+        new Error(
+          `The provided mining reward: 8888 does not equalthe official value: ${MINING_REWARD}`,
         ),
       )
     })

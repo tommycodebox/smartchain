@@ -49,6 +49,8 @@ export class Block {
 
   static mine({ lastBlock, beneficiary, series, stateRoot }: MineProps) {
     const target = Block.calculateBlockTargetHash({ lastBlock })
+    const miningReward = Transaction.create({ beneficiary })
+    series.push(miningReward)
     const tree = Tree.build({
       items: series,
     })

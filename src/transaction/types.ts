@@ -3,9 +3,10 @@ import { Account } from '@/account'
 import { Transaction } from '.'
 
 export interface CreateTransactionProps {
-  account: Account
+  account?: Account
   to?: string
   value?: number
+  beneficiary?: string
 }
 
 export interface ValidateCreateAccountProps {
@@ -18,6 +19,10 @@ export interface ValidateStandartProps {
 
 export interface RunTransactionProps {
   state: State
+  transaction: Transaction
+}
+
+export interface ValidateMiningRewardProps {
   transaction: Transaction
 }
 
