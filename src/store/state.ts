@@ -8,13 +8,27 @@ interface PutAccountProps {
 
 export class State {
   tree: Tree
+  storage: {
+    [address: string]: Tree
+  }
 
   constructor() {
     this.tree = new Tree()
+    this.storage = {}
   }
 
   putAccount({ address, accountData }: PutAccountProps) {
-    this.tree.put({ key: address, value: accountData })
+    if (!this.storage[address]) {
+      this.storage[address] = new Tree()
+    }
+
+    this.tree.put({
+      key: address,
+      value: {
+        ...accountData,
+        storageRoot: this.storage[address].rootHash,
+      },
+    })
   }
 
   getAccount(address: string): Account {

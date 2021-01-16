@@ -11,6 +11,8 @@ const AND = 'AND'
 const OR = 'OR'
 const JUMP = 'JUMP'
 const JUMPI = 'JUMPI'
+const STORE = 'STORE'
+const LOAD = 'LOAD'
 
 export const CODE_MAP = {
   STOP,
@@ -26,6 +28,8 @@ export const CODE_MAP = {
   OR,
   JUMP,
   JUMPI,
+  STORE,
+  LOAD,
 }
 
 export const GAS_MAP: { [key: string]: number } = {
@@ -42,4 +46,6 @@ export const GAS_MAP: { [key: string]: number } = {
   OR: 1,
   JUMP: 2,
   JUMPI: 2,
+  STORE: 5,
+  LOAD: 5,
 }

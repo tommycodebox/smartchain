@@ -5,7 +5,9 @@ import { Transaction } from './transaction'
 
 import { CODE_MAP } from './interpreter'
 import { Block } from './blockchain'
-const { STOP, ADD, PUSH } = CODE_MAP
+const { STOP, ADD, PUSH, STORE, LOAD } = CODE_MAP
+const key = 'foo'
+const value = 'bar'
 
 const BASE_URL = 'http://localhost:4210'
 
@@ -57,8 +59,7 @@ postTransact({})
   })
   .then((trx2) => {
     console.log('[ TRANSACTION ] (2) To the newly created account', trx2)
-
-    const code = [PUSH, 4, PUSH, 5, ADD, STOP]
+    const code = [PUSH, value, PUSH, key, STORE, PUSH, key, LOAD, STOP]
 
     return postTransact({ code })
   })

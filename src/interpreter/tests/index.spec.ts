@@ -1,4 +1,5 @@
 import { Interpreter, CODE_MAP } from '@/interpreter'
+import { Tree } from '@/store'
 
 const {
   STOP,
@@ -14,6 +15,8 @@ const {
   OR,
   JUMP,
   JUMPI,
+  STORE,
+  LOAD,
 } = CODE_MAP
 
 describe('Interpreter', () => {
@@ -140,6 +143,42 @@ describe('Interpreter', () => {
         expect(() => new Interpreter().runCode([PUSH, 0, JUMP, STOP])).toThrow(
           `Infinite loop detected, execution limit of 10000 exceeded`,
         )
+      })
+    })
+    describe('and the code includes STORE', () => {
+      it('should put value into storage', () => {
+        const interpreter = new Interpreter({
+          storage: new Tree(),
+        })
+
+        const key = 'foo'
+        const value = 'bar'
+
+        const code = [PUSH, value, PUSH, key, STORE, STOP]
+
+        const { gasUsed } = interpreter.runCode(code)
+
+        const wowo = JSON.stringify(interpreter.storage.head.childMap, null, 2)
+
+        console.log({ wowo, gasUsed })
+
+        expect(interpreter.storage.get(key)).toEqual(value)
+      })
+    })
+    describe('and the code includes LOAD', () => {
+      it('should load value from storage by key', () => {
+        const interpreter = new Interpreter({
+          storage: new Tree(),
+        })
+
+        const key = 'foo'
+        const value = 'bar'
+
+        const code = [PUSH, value, PUSH, key, STORE, PUSH, key, LOAD, STOP]
+
+        const { result } = interpreter.runCode(code)
+
+        expect(result).toEqual(value)
       })
     })
   })

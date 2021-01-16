@@ -116,7 +116,9 @@ export class Transaction {
         return reject(new Error(`The to field: ${to} does not exist`))
 
       if (toAccount.codeHash) {
-        const { gasUsed } = new Interpreter().runCode(toAccount.code)
+        const { gasUsed } = new Interpreter({
+          storage: state.storage[toAccount.codeHash],
+        }).runCode(toAccount.code)
 
         if (gasUsed > gasLimit)
           return reject(
@@ -202,8 +204,11 @@ export class Transaction {
 
     let result
     let gasUsed = 0
+
     if (toAccount.codeHash) {
-      const interpreter = new Interpreter()
+      const interpreter = new Interpreter({
+        storage: state.storage[toAccount.codeHash],
+      })
       ;({ result, gasUsed } = interpreter.runCode(toAccount.code))
       console.log(`[ CONTRACT ] Execution: ${transaction.id} Result:`, result)
     }

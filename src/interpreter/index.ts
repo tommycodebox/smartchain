@@ -1,6 +1,8 @@
 export * from './code-map'
 
+import { Tree } from '@/store'
 import { CODE_MAP, GAS_MAP } from './code-map'
+import { InterpreterProps } from './types'
 
 const EXECUTION_COMPLETE = 'Execution complete'
 const EXECUTION_LIMIT = 10000
@@ -19,6 +21,8 @@ const {
   OR,
   JUMP,
   JUMPI,
+  STORE,
+  LOAD,
 } = CODE_MAP
 
 export class Interpreter {
@@ -28,14 +32,16 @@ export class Interpreter {
     stack: any[]
     code: any[]
   }
+  storage: Tree
 
-  constructor() {
+  constructor({ storage }: InterpreterProps = {}) {
     this.state = {
       programCounter: 0,
       executionCount: 0,
       stack: [],
       code: [],
     }
+    this.storage = storage
   }
 
   jump() {
@@ -63,7 +69,10 @@ export class Interpreter {
 
       const opCode = this.state.code[this.state.programCounter]
 
+      // console.log({ opCode, gas: GAS_MAP[opCode] })
       gasUsed += GAS_MAP[opCode]
+
+      let key, value
 
       try {
         switch (opCode) {
@@ -75,7 +84,7 @@ export class Interpreter {
             if (this.state.programCounter === this.state.code.length)
               throw new Error(`The PUSH instruction cannot be last`)
 
-            const value = this.state.code[this.state.programCounter]
+            value = this.state.code[this.state.programCounter]
             this.state.stack.push(value)
             break
           case ADD:
@@ -110,6 +119,18 @@ export class Interpreter {
           case JUMPI:
             const condition = this.state.stack.pop()
             if (condition === 1) this.jump()
+            break
+          case STORE:
+            key = this.state.stack.pop()
+            value = this.state.stack.pop()
+
+            this.storage.put({ key, value })
+            break
+          case LOAD:
+            key = this.state.stack.pop()
+            value = this.storage.get(key)
+
+            this.state.stack.push(value)
             break
           default:
             break
