@@ -1,5 +1,6 @@
 import { Account } from '@/account'
 import { MINING_REWARD } from '@/config'
+import { Interpreter } from '@/interpreter'
 import { ec as EC } from 'elliptic'
 import * as uuid from 'uuid'
 import {
@@ -177,6 +178,12 @@ export class Transaction {
   static runStandart({ state, transaction }: RunTransactionProps) {
     const fromAccount = state.getAccount(transaction.from)
     const toAccount = state.getAccount(transaction.to)
+
+    if (toAccount.codeHash) {
+      const interpreter = new Interpreter()
+      const result = interpreter.runCode(toAccount.code)
+      console.log(`[ CONTRACT ] Execution: ${transaction.id} Result:`, result)
+    }
 
     const { value } = transaction
 

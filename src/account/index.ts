@@ -13,8 +13,8 @@ export class Account {
   keyPair: EC.KeyPair
   address: string
   balance: number
-  code: string[]
-  codeHash: string
+  code?: string[]
+  codeHash?: string
 
   constructor({ code }: AccountProps = {}) {
     this.keyPair = ec.genKeyPair()

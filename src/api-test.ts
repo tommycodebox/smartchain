@@ -4,6 +4,7 @@ import { Account } from './account'
 import { Transaction } from './transaction'
 
 import { CODE_MAP } from './interpreter'
+import { Block } from './blockchain'
 const { STOP, ADD, PUSH } = CODE_MAP
 
 const BASE_URL = 'http://localhost:4210'
@@ -41,32 +42,47 @@ const getAccoutBalance = (address?: string) => {
 // postTransact({ to: 'foo', value: 20 }).then((trx) =>
 //   console.log('Post transact response  (standart)', trx),
 // )
-let toAccountData: Record<string, any>
+let toAccountData: Record<string, any>, smartContractAccData: any
 
 postTransact({})
   .then((trx: { transaction: Transaction }) => {
-    console.log('Post transaction 1 to create acc', trx)
+    console.log('[ TRANSACTION ] (1) Create account', trx)
     toAccountData = trx?.transaction?.data?.accountData
 
     return getMine()
   })
-  .then((minedBlock) => {
+  .then((minedBlock: Block) => {
+    console.log(`[ BLOCK ] (1) Mined block`, minedBlock)
     return postTransact({ to: toAccountData.address, value: 20 })
   })
   .then((trx2) => {
-    console.log('Post transaction 2 to newly created account', trx2)
+    console.log('[ TRANSACTION ] (2) To the newly created account', trx2)
 
     const code = [PUSH, 4, PUSH, 5, ADD, STOP]
 
     return postTransact({ code })
   })
-  .then((trx3) => {
-    console.log(`Post transaction 3 with code`, trx3)
+  .then((trx3: any) => {
+    console.log(`[ TRANSACTION ] (3) Create smart contract`, trx3)
+
+    smartContractAccData = trx3?.transaction?.data?.accountData
+
     return getMine()
   })
   .then((minedBlock2) => {
-    console.log('getMine2 response', minedBlock2)
+    console.log(`[ BLOCK ] (2) Mined block`, minedBlock2)
 
+    return postTransact({
+      to: smartContractAccData.codeHash,
+      value: 0,
+    })
+  })
+  .then((trx4) => {
+    console.log('[ TRANSACTION ] (4) To smart contract codeHash', trx4)
+    return getMine()
+  })
+  .then((minedBlock3) => {
+    console.log('[ BLOCK ] (3) Mined block', minedBlock3)
     return getAccoutBalance()
   })
   .then((accountBalance) => {
@@ -77,4 +93,4 @@ postTransact({})
   .then((accountBalance2) => {
     console.log({ accountBalance2 })
   })
-  .catch((err) => console.error('[ ERROR ]', err.response.data))
+  .catch((err) => console.error('[ ERROR ]', err.response?.data || err.message))
