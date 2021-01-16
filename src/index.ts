@@ -41,7 +41,10 @@ app.get('/blockchain/mine', (req, res, next) => {
       pubsub.broadcastBlock(block)
       res.json({ block })
     })
-    .catch(next)
+    .catch((err) => {
+      console.error(`[ ERROR ] ${err.message}`)
+      res.status(400).json({ message: err.message })
+    })
 })
 
 app.get('/pool', (req, res) => {
@@ -49,10 +52,10 @@ app.get('/pool', (req, res) => {
 })
 
 app.post('/account/transact', (req, res, next) => {
-  const { to, value } = req.body
+  const { to, value, code } = req.body
 
   const transaction = Transaction.create({
-    account: !to ? new Account() : account,
+    account: !to ? new Account({ code }) : account,
     to,
     value,
   })

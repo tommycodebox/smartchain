@@ -1,5 +1,6 @@
-import {
-  Interpreter,
+import { Interpreter, CODE_MAP } from '@/interpreter'
+
+const {
   STOP,
   ADD,
   SUB,
@@ -13,7 +14,7 @@ import {
   OR,
   JUMP,
   JUMPI,
-} from '@/interpreter'
+} = CODE_MAP
 
 describe('Interpreter', () => {
   describe('runCode()', () => {

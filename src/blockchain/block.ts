@@ -137,8 +137,6 @@ export class Block {
       })
         .then(resolve)
         .catch(reject)
-
-      return resolve(block)
     })
   }
 

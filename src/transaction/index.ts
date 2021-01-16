@@ -88,7 +88,10 @@ export class Transaction {
         return reject(new Error(`Transaction ${id} signature is invalid`))
       }
 
-      const fromBalance = state.getAccount(from).balance
+      const fromBalance = state.getAccount(from)?.balance
+
+      if (!fromBalance)
+        return reject(new Error(`From address: ${from} does not have balance`))
 
       if (value > fromBalance)
         return reject(
@@ -113,7 +116,7 @@ export class Transaction {
       if (fields.length !== expectedAccFields.length)
         return reject(
           new Error(
-            `The transaction account data has an incorect number of fields`,
+            `The transaction account data has an incorrect number of fields`,
           ),
         )
 
@@ -186,16 +189,16 @@ export class Transaction {
 
   static runCreateAccount({ state, transaction }: RunTransactionProps) {
     const { accountData } = transaction.data
-    const { address } = accountData
+    const { address, codeHash } = accountData
 
-    state.putAccount({ address, accountData })
+    state.putAccount({ address: codeHash ?? address, accountData })
   }
 
   static runMiningReward({ state, transaction }: RunTransactionProps) {
     const { to, value } = transaction
     const accountData = state.getAccount(to)
 
-    accountData.balance += value
+    if (accountData) accountData.balance += value
 
     state.putAccount({ address: to, accountData })
   }

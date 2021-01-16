@@ -1,7 +1,7 @@
 import { STARTING_BALANCE } from '@/config'
 import { ec, keccakHash } from '@/util'
 import { ec as EC } from 'elliptic'
-import { BalanceProps } from './types'
+import { AccountProps, BalanceProps } from './types'
 
 interface VerifySignatureProps {
   publicKey: string
@@ -13,11 +13,20 @@ export class Account {
   keyPair: EC.KeyPair
   address: string
   balance: number
+  code: string[]
+  codeHash: string
 
-  constructor() {
+  constructor({ code }: AccountProps = {}) {
     this.keyPair = ec.genKeyPair()
     this.address = this.keyPair.getPublic().encode('hex', false)
     this.balance = STARTING_BALANCE
+    this.code = code || []
+    this.generateCodeHash()
+  }
+
+  generateCodeHash() {
+    this.codeHash =
+      this.code.length > 0 ? keccakHash(this.address + this.code) : null
   }
 
   sign(data: any) {
@@ -34,10 +43,12 @@ export class Account {
     return {
       address: this.address,
       balance: this.balance,
+      code: this.code,
+      codeHash: this.codeHash,
     }
   }
 
   static balance({ address, state }: BalanceProps) {
-    return state.getAccount(address).balance
+    return state.getAccount(address)?.balance
   }
 }

@@ -105,7 +105,7 @@ describe('Transaction', () => {
         }),
       ).rejects.toMatchObject(
         new Error(
-          'The transaction account data has an incorect number of fields',
+          'The transaction account data has an incorrect number of fields',
         ),
       )
     })

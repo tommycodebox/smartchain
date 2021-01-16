@@ -38,7 +38,9 @@ export class Blockchain {
           pool.clearBlockTransactions({ series: block.series })
           return resolve(undefined)
         })
-        .catch(reject)
+        .catch((err) => {
+          reject(err)
+        })
     })
   }
 

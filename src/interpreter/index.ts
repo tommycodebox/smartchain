@@ -1,19 +1,26 @@
-export const STOP = 'STOP'
-export const ADD = 'ADD'
-export const SUB = 'SUB'
-export const MUL = 'MUL'
-export const DIV = 'DIV'
-export const PUSH = 'PUSH'
-export const LT = 'LT'
-export const GT = 'GT'
-export const EQ = 'EQ'
-export const AND = 'AND'
-export const OR = 'OR'
-export const JUMP = 'JUMP'
-export const JUMPI = 'JUMPI'
+export * from './code-map'
+
+import { CODE_MAP } from './code-map'
 
 const EXECUTION_COMPLETE = 'Execution complete'
 const EXECUTION_LIMIT = 10000
+
+const {
+  STOP,
+  ADD,
+  SUB,
+  MUL,
+  DIV,
+  PUSH,
+  LT,
+  GT,
+  EQ,
+  AND,
+  OR,
+  JUMP,
+  JUMPI,
+} = CODE_MAP
+
 export class Interpreter {
   state: {
     programCounter: number
