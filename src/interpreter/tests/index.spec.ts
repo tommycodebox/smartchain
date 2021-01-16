@@ -21,55 +21,55 @@ describe('Interpreter', () => {
     describe('and the code includes ADD', () => {
       it('should add two values', () => {
         const code = [PUSH, 2, PUSH, 3, ADD, STOP]
-        expect(new Interpreter().runCode(code)).toEqual(5)
+        expect(new Interpreter().runCode(code).result).toEqual(5)
       })
     })
     describe('and the code includes SUB', () => {
       it('should add two values', () => {
         const code = [PUSH, 2, PUSH, 3, SUB, STOP]
-        expect(new Interpreter().runCode(code)).toEqual(1)
+        expect(new Interpreter().runCode(code).result).toEqual(1)
       })
     })
     describe('and the code includes MUL', () => {
       it('should add two values', () => {
         const code = [PUSH, 2, PUSH, 3, MUL, STOP]
-        expect(new Interpreter().runCode(code)).toEqual(6)
+        expect(new Interpreter().runCode(code).result).toEqual(6)
       })
     })
     describe('and the code includes DIV', () => {
       it('should add two values', () => {
         const code = [PUSH, 2, PUSH, 3, DIV, STOP]
-        expect(new Interpreter().runCode(code)).toEqual(1.5)
+        expect(new Interpreter().runCode(code).result).toEqual(1.5)
       })
     })
     describe('and the code includes LT', () => {
       it('should check if one value is less than another', () => {
         const code = [PUSH, 2, PUSH, 3, LT, STOP]
-        expect(new Interpreter().runCode(code)).toEqual(0)
+        expect(new Interpreter().runCode(code).result).toEqual(0)
       })
     })
     describe('and the code includes GT', () => {
       it('should check if one value is greater than another', () => {
         const code = [PUSH, 2, PUSH, 3, GT, STOP]
-        expect(new Interpreter().runCode(code)).toEqual(1)
+        expect(new Interpreter().runCode(code).result).toEqual(1)
       })
     })
     describe('and the code includes EQ', () => {
       it('should check if one value is equal to another', () => {
         const code = [PUSH, 2, PUSH, 3, EQ, STOP]
-        expect(new Interpreter().runCode(code)).toEqual(0)
+        expect(new Interpreter().runCode(code).result).toEqual(0)
       })
     })
     describe('and the code includes AND', () => {
       it('should and two conditions', () => {
         const code = [PUSH, 1, PUSH, 0, AND, STOP]
-        expect(new Interpreter().runCode(code)).toEqual(0)
+        expect(new Interpreter().runCode(code).result).toEqual(0)
       })
     })
     describe('and the code includes OR', () => {
       it('should or two conditions', () => {
         const code = [PUSH, 1, PUSH, 0, OR, STOP]
-        expect(new Interpreter().runCode(code)).toEqual(1)
+        expect(new Interpreter().runCode(code).result).toEqual(1)
       })
     })
     describe('and the code includes JUMP', () => {
@@ -85,7 +85,9 @@ describe('Interpreter', () => {
           'jump successful',
           STOP,
         ]
-        expect(new Interpreter().runCode(code)).toEqual('jump successful')
+        expect(new Interpreter().runCode(code).result).toEqual(
+          'jump successful',
+        )
       })
     })
     describe('and the code includes JUMPI', () => {
@@ -103,7 +105,9 @@ describe('Interpreter', () => {
           'jump successful',
           STOP,
         ]
-        expect(new Interpreter().runCode(code)).toEqual('jump successful')
+        expect(new Interpreter().runCode(code).result).toEqual(
+          'jump successful',
+        )
       })
     })
     describe('and the code includes an invalid JUMP destination', () => {

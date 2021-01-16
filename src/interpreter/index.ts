@@ -1,6 +1,6 @@
 export * from './code-map'
 
-import { CODE_MAP } from './code-map'
+import { CODE_MAP, GAS_MAP } from './code-map'
 
 const EXECUTION_COMPLETE = 'Execution complete'
 const EXECUTION_LIMIT = 10000
@@ -51,6 +51,8 @@ export class Interpreter {
   runCode(code: any) {
     this.state.code = code
 
+    let gasUsed = 0
+
     while (this.state.programCounter < this.state.code.length) {
       this.state.executionCount++
 
@@ -60,6 +62,8 @@ export class Interpreter {
         )
 
       const opCode = this.state.code[this.state.programCounter]
+
+      gasUsed += GAS_MAP[opCode]
 
       try {
         switch (opCode) {
@@ -112,7 +116,12 @@ export class Interpreter {
         }
       } catch (err) {
         if (err.message === EXECUTION_COMPLETE) {
-          return this.state.stack[this.state.stack.length - 1]
+          const result = this.state.stack[this.state.stack.length - 1]
+
+          return {
+            result,
+            gasUsed,
+          }
         }
 
         throw err

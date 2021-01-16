@@ -7,6 +7,7 @@ export interface CreateTransactionProps {
   to?: string
   value?: number
   beneficiary?: string
+  gasLimit?: number
 }
 
 export interface ValidateCreateAccountProps {

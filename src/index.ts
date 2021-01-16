@@ -52,10 +52,11 @@ app.get('/pool', (req, res) => {
 })
 
 app.post('/account/transact', (req, res, next) => {
-  const { to, value, code } = req.body
+  const { to, value, code, gasLimit } = req.body
 
   const transaction = Transaction.create({
     account: !to ? new Account({ code }) : account,
+    gasLimit,
     to,
     value,
   })

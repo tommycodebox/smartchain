@@ -9,10 +9,10 @@ const { STOP, ADD, PUSH } = CODE_MAP
 
 const BASE_URL = 'http://localhost:4210'
 
-const postTransact = ({ to, value, code }: any) => {
+const postTransact = ({ to, value, code, gasLimit }: any) => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`${BASE_URL}/account/transact`, { to, value, code })
+      .post(`${BASE_URL}/account/transact`, { to, value, code, gasLimit })
       .then((res) => resolve(res.data))
       .catch(reject)
   })
@@ -75,6 +75,7 @@ postTransact({})
     return postTransact({
       to: smartContractAccData.codeHash,
       value: 0,
+      gasLimit: 100,
     })
   })
   .then((trx4) => {

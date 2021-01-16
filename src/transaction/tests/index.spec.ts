@@ -69,7 +69,7 @@ describe('Transaction', () => {
           state,
         }),
       ).rejects.toMatchObject(
-        new Error(`Transaction value: 4210 exceeds balance: 1000`),
+        new Error(`Transaction value and gasLimit: 4210 exceeds balance: 1000`),
       )
     })
 
@@ -86,6 +86,44 @@ describe('Transaction', () => {
           state,
         }),
       ).rejects.toMatchObject(new Error(`The to field: foo does not exist`))
+    })
+
+    it('should invalidate when gasLimit exceeds the balance', () => {
+      standartTransaction = Transaction.create({
+        account,
+        to: 'foo',
+        gasLimit: 4210,
+      })
+
+      expect(
+        Transaction.validateStandart({
+          transaction: standartTransaction,
+          state,
+        }),
+      ).rejects.toMatchObject(
+        new Error(`Transaction value and gasLimit: 0 exceeds balance: 1000`),
+      )
+    })
+
+    it('should invalidate when the gasUsed for the code exceeds the gasLimit', () => {
+      const codeHash = 'foo-codeHash'
+      const code = ['PUSH', 1, 'PUSH', 2, 'ADD', 'STOP']
+      state.putAccount({ address: codeHash, accountData: { code, codeHash } })
+
+      standartTransaction = Transaction.create({
+        account,
+        to: codeHash,
+        gasLimit: 0,
+      })
+
+      expect(
+        Transaction.validateStandart({
+          transaction: standartTransaction,
+          state,
+        }),
+      ).rejects.toMatchObject(
+        new Error(`Transaction needs more gas, Provided: 0 Needed: 1`),
+      )
     })
   })
 
